@@ -8,7 +8,7 @@ async function createAdmin() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
 
-  const email = "navya@gmail.com";
+    const email = "navya@gmail.com";
     const password = process.env.ADMIN_PASSWORD;
 
     if (!password) {
