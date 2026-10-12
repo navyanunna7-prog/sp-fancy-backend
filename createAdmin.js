@@ -1,52 +1,42 @@
+
+require("dotenv").config();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-require("dotenv").config();
-
 const Admin = require("./models/Admin");
 
-async function updateAdmin() {
+async function createAdmin() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
 
-    console.log("MongoDB connected");
+    const email = "your-admin-email@example.com";
+    const password = process.env.ADMIN_PASSWORD;
 
-    const hashedPassword = await bcrypt.hash(
-      "navya2507",
-      10
-    );
-
-    const admin = await Admin.findOneAndUpdate(
-      { email: "admin@spfancy.com" },
-      {
-        name: "SP FANCY Admin",
-        email: "navyanunna7@gmail.com",
-        password: hashedPassword,
-        role: "admin",
-      },
-      {
-        new: true,
-      }
-    );
-
-    if (!admin) {
-      console.log("Existing admin not found");
-      process.exit(1);
+    if (!password) {
+      throw new Error("ADMIN_PASSWORD is missing");
     }
 
-    console.log("Admin credentials updated successfully");
-    console.log("Email:", admin.email);
+    const existingAdmin = await Admin.findOne({ email });
 
-    await mongoose.connection.close();
+    if (existingAdmin) {
+      console.log("Admin already exists.");
+      return;
+    }
 
-    process.exit(0);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await Admin.create({
+      name: "Store Admin",
+      email,
+      password: hashedPassword,
+      role: "admin",
+    });
+
+    console.log("Admin created successfully.");
   } catch (error) {
-    console.error(
-      "Admin update error:",
-      error.message
-    );
-
-    process.exit(1);
+    console.error("Error:", error.message);
+  } finally {
+    await mongoose.disconnect();
   }
 }
 
-updateAdmin();
+createAdmin();
