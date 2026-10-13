@@ -79,26 +79,24 @@ router.post("/", authMiddleware, async (req, res) => {
 // GET MY ORDERS
 // =========================
 
-router.get("/", authMiddleware, async (req, res) => {
+
+router.get("/my-orders", authMiddleware, async (req, res) => {
   try {
     const orders = await Order.find({
       userId: req.userId,
-    })
-      .populate("items.productId")
-      .sort({ createdAt: -1 });
+    }).sort({ createdAt: -1 });
 
-    res.json(orders);
+    return res.status(200).json(orders);
   } catch (error) {
-    console.error(
-      "Get orders error:",
-      error.message
-    );
+    console.error("Get my orders error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to fetch orders",
+      error: error.message,
     });
   }
 });
+
 
 
 // =========================
